@@ -1,0 +1,40 @@
+kitchen:
+    name: Kitchen
+    entities:
+      - light.keittiokatto
+      - light.keittioruokapoyta
+hallway:
+    name: Hallway
+    entities:
+      - light.eteinen
+bedroom:
+    name: Bedroom
+    entities:
+      - light.makuuhuonekatto
+      - light.makuuhuonesangynpaaty
+studyfloor:
+    name: Study Floorlamp
+    entities:
+    - light.tyohuonelattiavalo1
+    - light.tyohuonelattiavalo2
+study:
+    name: Study
+    entities:
+      - light.tyohuonekatto
+      - group.studyfloor
+livingroomceiling:
+    name: Living Room Ceiling
+    entities:
+    - light.olohuonekatto1
+    - light.olohuonekatto2
+livingroom:
+    name: Living Room
+    entities:
+      - group.livingroomceiling
+      - light.olohuonelattiavalo
+      - light.olohuonesohva
+      - light.olohuonesohvan_paaty
+balcony:
+    name: Balcony
+    entities:
+      - light.parveke

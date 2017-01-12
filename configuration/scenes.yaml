@@ -1,0 +1,55 @@
+- name: tv
+  entities:
+    light.olohuonelattiavalo: off
+    group.livingroomceiling: off
+    light.olohuonesohva: on
+    light.olohuonesohvan_paaty: on
+    light.keittiokatto: off
+    light.keittioruokapoyta:
+      state: on
+      brightness: 100
+    light.eteinen:
+      state: on
+      brightness: 100
+    light.tyohuonekatto: off
+    group.studyfloor:
+      state: on
+      brightness: 100
+
+- name: morning
+  entities:
+    light.makuuhuonekatto:
+      state: on
+      brightness: 255
+    light.makuuhuonesangynpaaty: on
+    light.olohuonesohva: on
+    light.eteinen:
+      state: on
+      brightness: 255
+    light.keittiokatto: on
+    light.keittioruokapoyta:
+      state: on
+      brightness: 255
+    light.olohuonelattiavalo:
+      state: on
+      brightness: 255
+
+- name: arrival
+  entities:
+    light.makuuhuonesangynpaaty: on
+    light.olohuonesohva: on
+    light.olohuonesohvan_paaty: on
+    light.eteinen:
+      state: on
+      brightness: 255
+    light.keittiokatto: on
+    light.keittioruokapoyta:
+      state: on
+      brightness: 150
+    light.olohuonelattiavalo:
+      state: on
+      brightness: 100
+
+- name: sleep
+  entities:
+    group.all_lights: off

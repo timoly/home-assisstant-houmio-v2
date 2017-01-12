@@ -1,0 +1,24 @@
+alias: 'Turn on balcony at sunset'
+trigger:
+  platform: sun
+  event: sunset
+  offset: "+00:30:00"
+condition:
+  - condition: state
+    entity_id: light.parveke
+    state: 'off'
+action:
+  service: light.turn_on
+  entity_id: light.parveke
+
+alias: 'Turn off balcony at midnight'
+trigger:
+  platform: time
+  after: '00:00:05'
+condition:
+  - condition: state
+    entity_id: light.parveke
+    state: 'on'
+action:
+  service: scene.turn_off
+  entity_id: light.parveke

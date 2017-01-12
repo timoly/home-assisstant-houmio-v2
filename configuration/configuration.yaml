@@ -1,0 +1,75 @@
+homeassistant:
+  name: Lintulahti
+  latitude: !secret latitude
+  longitude: !secret longitude
+  elevation: 50
+  unit_system: metric
+  time_zone: Europe/Helsinki
+  customize:
+    light.keittiokatto:
+      friendly_name: Kitchen ceiling
+      homebridge_name: Ceiling
+    light.keittioruokapoyta:
+      friendly_name: Kitchen table
+      homebridge_name: Table
+    light.eteinen:
+      friendly_name: Hallway ceiling
+      homebridge_name: Ceiling
+    light.makuuhuonekatto:
+      friendly_name: Bedroom ceiling
+      homebridge_name: Ceiling
+    light.makuuhuonesangynpaaty:
+      friendly_name: Bedroom headboard
+      homebridge_name: Headboard
+    light.tyohuonekatto:
+      friendly_name: Study ceiling
+      homebridge_name: Ceiling
+    light.olohuonelattiavalo:
+      friendly_name: Living room floor lamp
+      homebridge_name: Floor lamp
+    light.olohuonesohva:
+      friendly_name: Living room couch
+      homebridge_name: Couch
+    light.olohuonesohvan_paaty:
+      friendly_name: Living room side
+      homebridge_name: Sidetable
+    light.parveke:
+      friendly_name: Balcony ceiling
+      homebridge_name: Ceiling
+
+group: !include groups.yaml
+scene: !include scenes.yaml
+updater:
+discovery:
+history:
+logbook:
+sun:
+frontend:
+emulated_hue:
+
+light:
+  - platform: houmio
+    sitekey: !secret sitekey
+
+media_player:
+  - platform: yamaha
+
+device_tracker:
+  - platform: locative
+    track_new_devices: False
+  - platform: asuswrt
+    track_new_devices: False
+    host: 192.168.1.1
+    username: admin
+    password: !secret asuspw
+
+http:
+  api_password: !secret apipw
+  trusted_networks:
+    - 192.168.0.0/24
+
+sensor:
+  - platform: plex
+    host: 192.168.1.116
+    username: !secret plexuser
+    password: !secret plexpw
