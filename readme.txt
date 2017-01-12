@@ -1,11 +1,8 @@
-#configuration.yaml
+Home Assistant Houm.io v2 (http://houm.io) driver & sample configuration
 
-light:
-  - platform: houmio
-    sitekey: SITEKEY
+Install notes for Raspberry Pi 3:
 
 journalctl -fu home-assistant@pi
-
 sudo systemctl stop home-assistant@pi
 sudo su -s /bin/bash homeassistant
 source /srv/homeassistant/bin/activate
