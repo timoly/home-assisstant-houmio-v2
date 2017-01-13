@@ -1,68 +1,20 @@
-alias: 'Timo tulee kotiin'
+alias: 'Someone arrives to empty house'
 trigger:
-   platform: zone
+  - platform: zone
     entity_id: device_tracker.1a5c9de55a4d45c8b66f1cf97fa73a8f
     zone: zone.home
     event: enter
-condition:
-  conditions:
-    - condition: state
-      entity_id: 'device_tracker.b64059caaa8f449bba969e315f4d5498'
-      state: not_home
-      # for:
-      #   hours: 0
-      #   minutes: 5
-      #   seconds: 0
-action:
-  service: scene.turn_on
-  entity_id: scene.arrival
-
-alias: 'Elisa tulee kotiin'
-trigger:
-   platform: zone
+  - platform: zone
     entity_id: device_tracker.b64059caaa8f449bba969e315f4d5498
     zone: zone.home
     event: enter
 condition:
-  conditions:
-    - condition: state
-      entity_id: 'device_tracker.1a5c9de55a4d45c8b66f1cf97fa73a8f'
-      state: not_home
+  condition: state
+  entity_id: group.all_devices
+  state: 'not_home'
 action:
   service: scene.turn_on
   entity_id: scene.arrival
-
-
-alias: 'Timo lähtee ja talo jää tyhjäksi'
-trigger:
-   platform: zone
-    entity_id: device_tracker.1a5c9de55a4d45c8b66f1cf97fa73a8f
-    zone: zone.home
-    event: leave
-condition:
-  conditions:
-    - condition: state
-      entity_id: 'device_tracker.b64059caaa8f449bba969e315f4d5498'
-      state: not_home
-action:
-  service: group.turn_off
-  entity_id: group.all_lights
-
-alias: 'Elisa lähtee ja talo jää tyhjäksi'
-trigger:
-   platform: zone
-    entity_id: device_tracker.b64059caaa8f449bba969e315f4d5498
-    zone: zone.home
-    event: leave
-condition:
-  conditions:
-    - condition: state
-      entity_id: 'device_tracker.1a5c9de55a4d45c8b66f1cf97fa73a8f'
-      state: not_home
-action:
-  service: group.turn_off
-  entity_id: group.all_lights
-
 
 # alias: 'Arrival'
 # trigger:

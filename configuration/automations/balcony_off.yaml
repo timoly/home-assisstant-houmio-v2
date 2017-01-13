@@ -1,0 +1,11 @@
+alias: 'Turn off balcony at midnight'
+trigger:
+  platform: time
+  after: '00:00:05'
+condition:
+  - condition: state
+    entity_id: light.parveke
+    state: 'on'
+action:
+  service: scene.turn_off
+  entity_id: light.parveke

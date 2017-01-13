@@ -39,6 +39,8 @@ homeassistant:
 
 group: !include groups.yaml
 scene: !include scenes.yaml
+automation: !include_dir_list automations
+
 updater:
 discovery:
 history:
@@ -46,6 +48,7 @@ logbook:
 sun:
 frontend:
 emulated_hue:
+logger:
 
 light:
   - platform: houmio
