@@ -1,14 +1,19 @@
+import asyncio
 import logging
-import requests
+import aiohttp
 import voluptuous as vol
 import time
-import threading
+from threading import Thread, Timer
+from queue import Queue
 
 from homeassistant.components.light import (ATTR_BRIGHTNESS, Light, SUPPORT_BRIGHTNESS, SUPPORT_FLASH)
 import homeassistant.helpers.config_validation as cv
 from socketIO_client import SocketIO, BaseNamespace
 
-REQUIREMENTS = ['requests==2.12.3', 'socketIO-client-2==0.7.2']
+REQUIREMENTS = ['aiohttp==1.2.0', 'socketIO-client-2==0.7.2']
+
+DOMAIN = 'light_houmio_v2'
+# ENTITY_ID_FORMAT = DOMAIN + '.{}'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -17,44 +22,14 @@ HOST = 'https://houmi.herokuapp.com'
 LIGHT_BINARY = (SUPPORT_FLASH)
 LIGHT_BRIGHTNESS = (SUPPORT_BRIGHTNESS)
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
-    """Setup the Houmio v2 Light platform."""
-
-    state = {}
-    siteKey = config.get('sitekey')
-    state['lastUpdate'] = 0
-    state['lights'] = None
-
-    if siteKey is None:
-        _LOGGER.error('sitekey is required')
-        return False
-
-    def fetchLights():
-        r = requests.get("{0}/api/site/{1}".format(HOST, siteKey))
-
-        if r.status_code != 200:
-            _LOGGER.error('Could not connect to Houmio')
-            return False
-        else:
-            return r.json()['lights']
-
-    state['lights'] = fetchLights()
-
-    if state['lights'] is False:
-        return False
-
+def SocketHoumio(siteKey, emitQueue, statusQueue):
+    socketio = None
     def ready():
         _LOGGER.info('clientReady')
-        socketIO.emit('clientReady', { 'siteKey': siteKey })
-        socketIO.wait(seconds=5)
+        socketio.emit('clientReady', { 'siteKey': siteKey })
 
-    def set_interval(func, sec):
-        def func_wrapper():
-            set_interval(func, sec)
-            func()
-        t = threading.Timer(sec, func_wrapper)
-        t.start()
-    set_interval(ready, 3600)
+    def _receive_events_thread():
+        socketio.wait()
 
     class Namespace(BaseNamespace):
 
@@ -69,32 +44,103 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         def on_disconnect(self):
             _LOGGER.info('[Disconnected]')
 
-    socketIO = SocketIO(HOST, None, Namespace)
-    socketIO.wait(seconds=5)
-    ready()
+        def on_event(self, event, args):
+            _LOGGER.debug("on_event: {0} {1}".format(event, args))
 
-    def updateStatus(cb):
-        now = int(time.time())
-        lights = state['lights']
-        if now - state['lastUpdate'] > 3:
-            state['lastUpdate'] = int(time.time())
-            lights = fetchLights()
-            newLights = list(filter(lambda x: True if next((y for y in state['lights'] if y['_id'] == x['_id']), None) is None else False, lights))
-            add_devices(HoumioLight(light, socketIO, updateStatus) for light in newLights)
+            # TODO: new/removed light event
+            if event == 'setLightState':
+                statusQueue.put(args)
 
-        state['lights'] = lights
-        cb(lights)
+    socketio = SocketIO(HOST, None, Namespace)
 
-    add_devices(HoumioLight(light, socketIO, updateStatus) for light in state['lights'])
+    receive_events_thread = Thread(target=_receive_events_thread)
+    receive_events_thread.daemon = True
+    receive_events_thread.start()
+
+    def set_interval(func, sec):
+        def func_wrapper():
+            set_interval(func, sec)
+            func()
+        t = Timer(sec, func_wrapper)
+        t.start()
+    set_interval(ready, 1800)
+
+    while True:
+        data = emitQueue.get()
+        socketio.emit('apply/light', data)
+
+def consumer(statusQueue, lights):
+    while True:
+        status = statusQueue.get()
+
+        light = next((x for x in lights if x.unique_id == status['_id']), None)
+        if light is not None:
+            light.update(status)
+
+@asyncio.coroutine
+def fetch(session, url):
+    with aiohttp.Timeout(10):
+        resp = yield from session.get(url)
+        return (yield from resp.json()) if resp.status == 200 else (yield from resp.release())
+
+@asyncio.coroutine
+def fetchLights(loop, siteKey):
+    with aiohttp.ClientSession(loop=loop) as session:
+        data = yield from fetch(session, "{0}/api/site/{1}".format(HOST, siteKey))
+
+        if data is None:
+            _LOGGER.error('Could not connect to Houmio')
+            return False
+
+        return data['lights']
+
+@asyncio.coroutine
+def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
+    """Setup the Houmio v2 Light platform."""
+
+    siteKey = config.get('sitekey')
+
+    if siteKey is None:
+        _LOGGER.error('sitekey is required')
+        return False
+
+    lights = yield from fetchLights(hass.loop, siteKey)
+
+    if lights is False:
+        return False
+
+    emitQueue = Queue()
+    statusQueue = Queue()
+
+    lights = [HoumioLight(light, emitQueue) for light in lights]
+
+    socketHoumio = Thread(target=SocketHoumio, args=(siteKey, emitQueue, statusQueue))
+    socketHoumio.start()
+
+    statusConsumer = Thread(target=consumer, args=(statusQueue, lights))
+    statusConsumer.start()
+
+    yield from async_add_devices(lights, True)
+    return True
 
 class HoumioLight(Light):
     """Representation of an Houmio Light."""
 
-    def __init__(self, light, socketIO, updateStatus):
+    def __init__(self, light, emitQueue):
         """Initialize an HoumioLight."""
+        # self.entity_id = ENTITY_ID_FORMAT.format(light['_id'])
         self._light = light
-        self._socketIO = socketIO
-        self._updateStatus = updateStatus
+        self._emitQueue = emitQueue
+
+    def update(self, status):
+        _LOGGER.info("update: {0} {1}".format(status, self._light))
+
+        if 'bri' in status:
+            self._light['bri'] = status['bri']
+        if 'on' in status:
+            self._light['on'] = status['on']
+
+        self.hass.loop.create_task(self.async_update_ha_state())
 
     @property
     def unique_id(self):
@@ -122,12 +168,11 @@ class HoumioLight(Light):
         return self._light['on'] == 1
 
     def action(self, data):
-        _LOGGER.info('action', data)
-        self._socketIO.emit('apply/light', data)
-        self._socketIO.wait_for_callbacks(seconds=1)
+        _LOGGER.info('action: {0}'.format(data))
+        self._emitQueue.put(data)
 
     def turn_on(self, **kwargs):
-        print("turn on", kwargs, self._light)
+        _LOGGER.info("turn on: {0} {1}".format(kwargs, self._light))
 
         self.action({
             '_id': self._light['_id'],
@@ -137,20 +182,13 @@ class HoumioLight(Light):
 
     def turn_off(self, **kwargs):
         """Instruct the light to turn off."""
-        print("turn off", kwargs, self._light)
+        _LOGGER.info("turn off: {0} {1}".format(kwargs, self._light))
+
         self.action({
             '_id': self._light['_id'],
             'on': False
         })
 
-    def update(self):
-        """Fetch new state data for this light."""
-
-        def onLights(lights):
-            light = next((x for x in lights if x['_id'] == self._light['_id']), None)
-            if light is not None:
-                # _LOGGER.info('updating', light['name'], 'bri:', self._light['bri'], '->', light['bri'], 'state:', self._light['on'], '->', light['on'])
-                self._light['bri'] = light['bri']
-                self._light['on'] = light['on']
-
-        self._updateStatus(onLights)
+    @asyncio.coroutine
+    def async_update(self):
+        """new state is updated automatically based on ws events."""

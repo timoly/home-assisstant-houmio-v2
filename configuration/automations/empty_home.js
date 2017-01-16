@@ -9,5 +9,6 @@ trigger:
       minutes: 5
       seconds: 0
 action:
-  service: group.turn_off
-  entity_id: group.all_lights
+  service: homeassistant.turn_off
+  entity_id:
+    - group.all_lights

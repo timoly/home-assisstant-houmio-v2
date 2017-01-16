@@ -1,4 +1,6 @@
 - name: tv
+  emulated_hue_name: Television
+  emulated_hue: true
   entities:
     light.olohuonelattiavalo: off
     group.livingroomceiling: off

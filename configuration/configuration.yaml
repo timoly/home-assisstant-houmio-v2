@@ -37,25 +37,32 @@ homeassistant:
       friendly_name: Balcony ceiling
       homebridge_name: Ceiling
 
-group: !include groups.yaml
-scene: !include scenes.yaml
-automation: !include_dir_list automations
-
 updater:
-discovery:
+# discovery:
 history:
 logbook:
 sun:
 frontend:
 emulated_hue:
+  host_ip: 192.168.1.33
+  listen_port: 8300
 logger:
+  default: debug
+  logs:
+    homeassistant.components.api: info
+    homeassistant.components.http: critical
+
+group: !include groups.yaml
+scene: !include scenes.yaml
+automation: !include_dir_list automations
+
+media_player:
+  - platform: yamaha
+    host: 192.168.1.111
 
 light:
   - platform: houmio
     sitekey: !secret sitekey
-
-media_player:
-  - platform: yamaha
 
 device_tracker:
   - platform: locative
