@@ -45,7 +45,7 @@ def SocketHoumio(siteKey, emitQueue, statusQueue):
             _LOGGER.info('[Disconnected]')
 
         def on_event(self, event, args):
-            _LOGGER.debug("on_event: {0} {1}".format(event, args))
+            _LOGGER.info("on_event: {0} {1}".format(event, args))
 
             # TODO: new/removed light event
             if event == 'setLightState':

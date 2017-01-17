@@ -12,3 +12,4 @@ action:
   service: homeassistant.turn_off
   entity_id:
     - group.all_lights
+    - media_player.yamaha_receiver
