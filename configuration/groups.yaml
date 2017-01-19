@@ -3,6 +3,7 @@ kitchen:
     entities:
       - light.keittiokatto
       - light.keittioruokapoyta
+      - light.keittioylavalo
 hallway:
     name: Hallway
     entities:

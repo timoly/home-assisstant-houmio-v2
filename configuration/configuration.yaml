@@ -12,6 +12,9 @@ homeassistant:
     light.keittioruokapoyta:
       friendly_name: Kitchen table
       homebridge_name: Table
+    light.keittioylavalo:
+      friendly_name: Kitchen uplight
+      homebridge_name: Uplight
     light.eteinen:
       friendly_name: Hallway ceiling
       homebridge_name: Ceiling
@@ -59,6 +62,9 @@ automation: !include_dir_list automations
 media_player:
   - platform: yamaha
     host: 192.168.1.111
+  # - platform: samsungtv
+  #   host: 192.168.1.172
+  #   port: 8001
 
 light:
   - platform: houmio
@@ -87,4 +93,4 @@ sensor:
 switch:
   - platform: rest
     name: Olohuone Audio
-    resource: http://192.168.1.250:8080/devices/Olohuone
+    resource: http://localhost:8080/devices/Olohuone

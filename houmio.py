@@ -1,13 +1,11 @@
 import asyncio
 import logging
 import aiohttp
-import voluptuous as vol
 import time
-from threading import Thread, Timer
+from threading import Event, Thread, Timer
 from queue import Queue
 
 from homeassistant.components.light import (ATTR_BRIGHTNESS, Light, SUPPORT_BRIGHTNESS, SUPPORT_FLASH)
-import homeassistant.helpers.config_validation as cv
 from socketIO_client import SocketIO, BaseNamespace
 
 REQUIREMENTS = ['aiohttp==1.2.0', 'socketIO-client-2==0.7.2']
@@ -22,14 +20,43 @@ HOST = 'https://houmi.herokuapp.com'
 LIGHT_BINARY = (SUPPORT_FLASH)
 LIGHT_BRIGHTNESS = (SUPPORT_BRIGHTNESS)
 
+def set_interval(func, sec):
+    def func_wrapper():
+        set_interval(func, sec)
+        func()
+    t = Timer(sec, func_wrapper)
+    t.start()
+
 def SocketHoumio(siteKey, emitQueue, statusQueue):
-    socketio = None
+    state = {}
+    killpill = Event()
+
+    def _receive_events_thread(stop_event):
+        while not stop_event.wait(1):
+            state['socketio'].wait(seconds=1)
+        _LOGGER.info('Stopping socketIO wait')
+
     def ready():
         _LOGGER.info('clientReady')
-        socketio.emit('clientReady', { 'siteKey': siteKey })
+        state['socketio'].emit('clientReady', { 'siteKey': siteKey })
 
-    def _receive_events_thread():
-        socketio.wait()
+    def reconnect():
+        _LOGGER.info('reconnect')
+        state['socketio'].disconnect()
+        killpill.set()
+        state['receive_events_thread'].join()
+        connect()
+        createReceiveEventsThread()
+
+    def connect():
+        _LOGGER.info('connect')
+        state['socketio'] = SocketIO(HOST, None, Namespace)
+
+    def createReceiveEventsThread():
+        killpill.clear()
+        state['receive_events_thread'] = Thread(target=_receive_events_thread, args=(killpill,))
+        state['receive_events_thread'].daemon = True
+        state['receive_events_thread'].start()
 
     class Namespace(BaseNamespace):
 
@@ -51,23 +78,17 @@ def SocketHoumio(siteKey, emitQueue, statusQueue):
             if event == 'setLightState':
                 statusQueue.put(args)
 
-    socketio = SocketIO(HOST, None, Namespace)
+    connect()
 
-    receive_events_thread = Thread(target=_receive_events_thread)
-    receive_events_thread.daemon = True
-    receive_events_thread.start()
+    createReceiveEventsThread()
 
-    def set_interval(func, sec):
-        def func_wrapper():
-            set_interval(func, sec)
-            func()
-        t = Timer(sec, func_wrapper)
-        t.start()
     set_interval(ready, 1800)
+
+    set_interval(reconnect, 3600)
 
     while True:
         data = emitQueue.get()
-        socketio.emit('apply/light', data)
+        state['socketio'].emit('apply/light', data)
 
 def consumer(statusQueue, lights):
     while True:

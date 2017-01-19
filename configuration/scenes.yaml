@@ -6,10 +6,9 @@
     group.livingroomceiling: off
     light.olohuonesohva: on
     light.olohuonesohvan_paaty: on
+    light.keittioylavalo: on
     light.keittiokatto: off
-    light.keittioruokapoyta:
-      state: on
-      brightness: 100
+    light.keittioruokapoyta: off
     light.eteinen:
       state: on
       brightness: 100
@@ -28,7 +27,8 @@
     light.eteinen:
       state: on
       brightness: 255
-    light.keittiokatto: on
+    light.keittioylavalo: on
+    light.keittiokatto: off
     light.keittioruokapoyta:
       state: on
       brightness: 255
@@ -44,7 +44,8 @@
     light.eteinen:
       state: on
       brightness: 255
-    light.keittiokatto: on
+    light.keittioylavalo: on
+    light.keittiokatto: off
     light.keittioruokapoyta:
       state: on
       brightness: 150

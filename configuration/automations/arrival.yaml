@@ -1,26 +1,13 @@
 alias: 'Someone arrives to empty house'
 trigger:
-  - platform: zone
-    entity_id: device_tracker.1a5c9de55a4d45c8b66f1cf97fa73a8f
-    zone: zone.home
-    event: enter
-  - platform: zone
-    entity_id: device_tracker.b64059caaa8f449bba969e315f4d5498
-    zone: zone.home
-    event: enter
+  - platform: state
+    entity_id: group.all_devices
+    from: 'not_home'
+    to: 'home'
 condition:
   condition: state
-  entity_id: group.all_devices
-  state: 'not_home'
+  entity_id: light.eteinen
+  state: 'off'
 action:
-  service: scene.turn_on
+  service: homeassistant.turn_on
   entity_id: scene.arrival
-
-# alias: 'Arrival'
-# trigger:
-#   platform: template
-#   value_template: '{{ states.device_tracker.1a5c9de55a4d45c8b66f1cf97fa73a8f.state != "home" and states.device_tracker.b64059caaa8f449bba969e315f4d5498.state != "home"}}'
-# action:
-#   service: scene.turn_on
-#   entity_id: scene.
-#
