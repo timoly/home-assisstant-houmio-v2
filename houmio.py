@@ -4,8 +4,11 @@ import aiohttp
 import time
 from threading import Event, Thread, Timer
 from queue import Queue
+from functools import partial
+import math
 
-from homeassistant.components.light import (ATTR_BRIGHTNESS, Light, SUPPORT_BRIGHTNESS, SUPPORT_FLASH)
+from homeassistant.components.light import (ATTR_BRIGHTNESS, ATTR_TRANSITION,
+    Light, SUPPORT_BRIGHTNESS, SUPPORT_FLASH, SUPPORT_TRANSITION)
 from socketIO_client import SocketIO, BaseNamespace
 
 REQUIREMENTS = ['aiohttp==1.2.0', 'socketIO-client-2==0.7.2']
@@ -18,14 +21,21 @@ _LOGGER = logging.getLogger(__name__)
 HOST = 'https://houmi.herokuapp.com'
 
 LIGHT_BINARY = (SUPPORT_FLASH)
-LIGHT_BRIGHTNESS = (SUPPORT_BRIGHTNESS)
+LIGHT_BRIGHTNESS = (SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION)
 
-def set_interval(func, sec):
-    def func_wrapper():
-        set_interval(func, sec)
-        func()
-    t = Timer(sec, func_wrapper)
-    t.start()
+TRANSITION_INTERVAL = 5
+
+class setInterval():
+    def __init__(self, func, sec):
+        def func_wrapper():
+            self.t = Timer(sec, func_wrapper)
+            self.t.start()
+            func()
+        self.t = Timer(sec, func_wrapper)
+        self.t.start()
+
+    def cancel(self):
+        self.t.cancel()
 
 def SocketHoumio(siteKey, emitQueue, statusQueue):
     state = {}
@@ -82,9 +92,9 @@ def SocketHoumio(siteKey, emitQueue, statusQueue):
 
     createReceiveEventsThread()
 
-    set_interval(ready, 1800)
+    setInterval(ready, 1800)
 
-    set_interval(reconnect, 3600)
+    setInterval(reconnect, 3600)
 
     while True:
         data = emitQueue.get()
@@ -152,6 +162,7 @@ class HoumioLight(Light):
         # self.entity_id = ENTITY_ID_FORMAT.format(light['_id'])
         self._light = light
         self._emitQueue = emitQueue
+        self._transitionInterval = None
 
     def update(self, status):
         _LOGGER.info("update: {0} {1}".format(status, self._light))
@@ -192,23 +203,76 @@ class HoumioLight(Light):
         _LOGGER.info('action: {0}'.format(data))
         self._emitQueue.put(data)
 
-    def turn_on(self, **kwargs):
-        _LOGGER.info("turn on: {0} {1}".format(kwargs, self._light))
-
-        self.action({
-            '_id': self._light['_id'],
-            'bri': kwargs.get(ATTR_BRIGHTNESS, 255),
-            'on': True
-        })
-
     def turn_off(self, **kwargs):
         """Instruct the light to turn off."""
         _LOGGER.info("turn off: {0} {1}".format(kwargs, self._light))
 
+        if self._transitionInterval is not None:
+            self._transitionInterval.cancel()
+
+        if ATTR_TRANSITION in kwargs:
+            transitionCount = math.ceil(kwargs[ATTR_TRANSITION] / TRANSITION_INTERVAL)
+            step = self.step(transitionCount)
+            bound_transition_down = partial(self.transition_down, step)
+            self._transitionInterval = setInterval(bound_transition_down, TRANSITION_INTERVAL)
+        else:
+            self.action({
+                '_id': self._light['_id'],
+                'on': False
+            })
+
+    def turn_on(self, **kwargs):
+        _LOGGER.info("turn on: {0} {1}".format(kwargs, self._light))
+
+        if self._transitionInterval is not None:
+            self._transitionInterval.cancel()
+
+        if ATTR_TRANSITION in kwargs:
+            transitionCount = math.ceil(kwargs[ATTR_TRANSITION] / TRANSITION_INTERVAL)
+            step = self.step(transitionCount)
+            bound_transition_up = partial(self.transition_up, step)
+            self._transitionInterval = setInterval(bound_transition_up, TRANSITION_INTERVAL)
+        else:
+            self.action({
+                '_id': self._light['_id'],
+                'bri': kwargs.get(ATTR_BRIGHTNESS, 255),
+                'on': True
+            })
+
+    def step(self, transitionCount):
+        return math.ceil(self._light['bri'] / transitionCount)
+
+    def transition_down(self, step):
+        if self._light['bri'] <= 0 or self._light['on'] is False:
+            self._transitionInterval.cancel()
+            return
+
+        bri = self._light['bri'] - step
+
         self.action({
             '_id': self._light['_id'],
-            'on': False
+            'bri': bri if bri >= 0 else 0,
+            'on': True if bri >= 0 else False
         })
+
+        if bri <= 0:
+            self._transitionInterval.cancel()
+
+    def transition_up(self, step):
+        if self._light['bri'] >= 255 and self._light['on'] is True:
+            self._transitionInterval.cancel()
+            return
+
+        bri = self._light['bri'] + step if self._light['on'] is True else step
+
+        self.action({
+            '_id': self._light['_id'],
+            'bri': bri if bri <= 255 else 255,
+            'on': True
+        })
+
+        if bri >= 255:
+            self._transitionInterval.cancel()
 
     @asyncio.coroutine
     def async_update(self):
