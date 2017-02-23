@@ -13,6 +13,10 @@ bedroom:
     entities:
       - light.makuuhuonekatto
       - light.makuuhuonesangynpaaty
+      - switch.makuuhuone_pistoke
+      - script.bedroom_blinds_down
+      - script.bedroom_blinds_stop
+      - script.bedroom_blinds_up
 studyfloor:
     name: Study Floorlamp
     entities:
@@ -23,6 +27,7 @@ study:
     entities:
       - light.tyohuonekatto
       - group.studyfloor
+      - switch.vahvistin_sauna
 livingroomceiling:
     name: Living Room Ceiling
     entities:
@@ -35,6 +40,7 @@ livingroom:
       - light.olohuonelattiavalo
       - light.olohuonesohva
       - light.olohuonesohvan_paaty
+      - light.olohuoneylavalo
 balcony:
     name: Balcony
     entities:

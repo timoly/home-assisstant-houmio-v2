@@ -5,9 +5,25 @@ trigger:
     from: 'not_home'
     to: 'home'
 condition:
-  condition: state
-  entity_id: light.eteinen
-  state: 'off'
+  condition: or
+  conditions:
+    - condition: state
+      entity_id: light.eteinen
+      state: 'off'
+    - condition: sun
+      after: sunset
+      after_offset: "-1:00:00"
 action:
-  service: homeassistant.turn_on
-  entity_id: scene.arrival
+  - service: homeassistant.turn_on
+    entity_id: scene.arrival
+  - condition: or
+    conditions:
+      - condition: time
+        after: '10:00:00'
+        before: '21:00:00'
+  - service: switch.turn_on
+    entity_id: switch.olohuone_audio
+  - service: switch.turn_on
+    entity_id: switch.vahvistin_sauna
+  - service: switch.turn_on
+    entity_id: switch.makuuhuone_pistoke

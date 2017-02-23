@@ -9,7 +9,13 @@ trigger:
       minutes: 5
       seconds: 0
 action:
-  service: homeassistant.turn_off
-  entity_id:
-    - group.all_lights
-    - media_player.yamaha_receiver
+  - service: homeassistant.turn_off
+    entity_id:
+      - group.all_lights
+      - media_player.yamaha_receiver
+  - service: shell_command.tv_off
+  - service: switch.turn_off
+    entity_id: switch.vahvistin_sauna
+  - service: switch.turn_off
+    entity_id: switch.makuuhuone_pistoke
+  - service: media_player.turn_off

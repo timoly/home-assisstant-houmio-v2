@@ -24,6 +24,17 @@ homeassistant:
     light.makuuhuonesangynpaaty:
       friendly_name: Bedroom headboard
       homebridge_name: Headboard
+    cover.makuuhuone_rullaverho:
+      hidden: true
+      # friendly_name: Bedroom blinds
+      # homebridge_name: Blinds
+      # homebridge_cover_type: rollershutter
+    switch.makuuhuone_pistoke:
+      friendly_name: Bedroom TV power socket
+      homebridge_name: TV Power socket
+    switch.vahvistin_sauna:
+      friendly_name: Study amplifier
+      homebridge_name: Amplifier
     light.tyohuonekatto:
       friendly_name: Study ceiling
       homebridge_name: Ceiling
@@ -36,9 +47,38 @@ homeassistant:
     light.olohuonesohvan_paaty:
       friendly_name: Living room side
       homebridge_name: Sidetable
+    light.olohuoneylavalo:
+      friendly_name: Living room uplight
+      homebridge_name: Uplight
     light.parveke:
       friendly_name: Balcony ceiling
       homebridge_name: Ceiling
+    cover.makuuhuone_etela:
+      hidden: true
+    cover.makuuhuone_ita:
+      hidden: true
+    switch.sohvanpaaty:
+      hidden: true
+    switch.sohva:
+      hidden: true
+    switch.keittio_ylavalo:
+      hidden: true
+    switch.olohuone_ylavalo:
+      hidden: true
+    switch.parveke:
+      hidden: true
+    light.tyohuonelattiavalo1:
+      homebridge_hidden: true
+      friendly_name: Study floorlamp 1
+    light.tyohuonelattiavalo2:
+      homebridge_hidden: true
+      friendly_name: Study floorlamp 2
+    light.olohuonekatto1:
+      homebridge_hidden: true
+      friendly_name: Living room ceiling 1
+    light.olohuonekatto2:
+      homebridge_hidden: true
+      friendly_name: Living room ceiling 1
 
 updater:
 # discovery:
@@ -49,6 +89,7 @@ frontend:
 emulated_hue:
   host_ip: 192.168.1.33
   listen_port: 8300
+  type: alexa
 logger:
   default: debug
   logs:
@@ -62,9 +103,6 @@ automation: !include_dir_list automations
 media_player:
   - platform: yamaha
     host: 192.168.1.111
-  # - platform: samsungtv
-  #   host: 192.168.1.172
-  #   port: 8001
 
 light:
   - platform: houmio
@@ -94,3 +132,28 @@ switch:
   - platform: rest
     name: Olohuone Audio
     resource: http://localhost:8080/devices/Olohuone
+
+shell_command:
+  tv_off: echo "standby 0" | cec-client -s -m
+  tv_on: echo "on 0" | cec-client -s -m
+
+tellduslive:
+  public_key: !secret telldus_public_key
+  private_key: !secret telldus_private_key
+  token: !secret telldus_token
+  token_secret: !secret telldus_token_secret
+
+script:
+  bedroom_blinds_down:
+     alias: Bedroom blinds down
+     sequence:
+       - service: cover.close_cover
+  bedroom_blinds_up:
+     alias: Bedroom blinds up
+     sequence:
+       - service: cover.open_cover
+  bedroom_blinds_stop:
+     alias: Bedroom blinds stop
+     sequence:
+       - service: cover.stop_cover
+ios:
