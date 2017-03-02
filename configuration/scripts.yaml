@@ -1,0 +1,65 @@
+wakeup:
+  alias: Wake Up
+  sequence:
+    - alias: Bedroom ceiling light on with transition
+      service: light.turn_on
+      data:
+        entity_id: light.makuuhuonekatto
+        transition: 600000
+    - delay:
+        minutes: 10
+    - alias: set lights to morning
+      service: scene.turn_on
+      data:
+        entity_id: scene.morning
+    - alias: open blinds
+      service: homeassistant.turn_on
+      data:
+        entity_id: script.bedroom_blinds_up
+    - alias: turn music on
+      service: switch.turn_on
+      data:
+        entity_id: switch.all
+
+sleep:
+  alias: Sleep
+  sequence:
+    - alias: Turn speakers off
+      service: switch.turn_off
+      data:
+        entity_id: group.speakers
+    - alias: Turn lights off
+      service: light.turn_off
+      data:
+        entity_id: group.all_lights
+    - alias: Blinds down
+      service: homeassistant.turn_on
+      data:
+        entity_id: script.bedroom_blinds_down
+
+bedroom_blinds_down:
+  alias: Bedroom blinds down
+  sequence:
+    - service: cover.close_cover
+      entity_id: cover.makuuhuone_rullaverho
+    - delay: 00:00:03
+    - service: cover.close_cover
+      entity_id: cover.makuuhuone_rullaverho
+
+bedroom_blinds_up:
+  alias: Bedroom blinds up
+  sequence:
+    - service: cover.open_cover
+      entity_id: cover.makuuhuone_rullaverho
+    - delay: 00:00:03
+    - service: cover.open_cover
+      entity_id: cover.makuuhuone_rullaverho
+
+bedroom_blinds_stop:
+  alias: Bedroom blinds stop
+  sequence:
+    - service: cover.stop_cover
+      entity_id: cover.makuuhuone_rullaverho
+    - delay: 00:00:03
+    - service: cover.stop_cover
+      entity_id: cover.makuuhuone_rullaverho

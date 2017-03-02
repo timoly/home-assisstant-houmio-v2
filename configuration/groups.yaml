@@ -1,47 +1,65 @@
 kitchen:
-    name: Kitchen
-    entities:
-      - light.keittiokatto
-      - light.keittioruokapoyta
-      - light.keittioylavalo
+  name: Kitchen
+  entities:
+    - light.keittiokatto
+    - light.keittioruokapoyta
+    - light.keittioylavalo
 hallway:
-    name: Hallway
-    entities:
-      - light.eteinen
+  name: Hallway
+  entities:
+    - light.eteinen
 bedroom:
-    name: Bedroom
-    entities:
-      - light.makuuhuonekatto
-      - light.makuuhuonesangynpaaty
-      - switch.makuuhuone_pistoke
-      - script.bedroom_blinds_down
-      - script.bedroom_blinds_stop
-      - script.bedroom_blinds_up
+  name: Bedroom
+  entities:
+    - light.makuuhuonekatto
+    - light.makuuhuonesangynpaaty
+    - switch.makuuhuone_pistoke
+    - script.bedroom_blinds_down
+    - script.bedroom_blinds_stop
+    - script.bedroom_blinds_up
 studyfloor:
-    name: Study Floorlamp
-    entities:
+  name: Study Floorlamp
+  entities:
     - light.tyohuonelattiavalo1
     - light.tyohuonelattiavalo2
 study:
-    name: Study
-    entities:
-      - light.tyohuonekatto
-      - group.studyfloor
-      - switch.vahvistin_sauna
+  name: Study
+  entities:
+    - light.tyohuonekatto
+    - group.studyfloor
+    - switch.vahvistin_sauna
 livingroomceiling:
-    name: Living Room Ceiling
-    entities:
+  name: Living Room Ceiling
+  entities:
     - light.olohuonekatto1
     - light.olohuonekatto2
 livingroom:
-    name: Living Room
-    entities:
-      - group.livingroomceiling
-      - light.olohuonelattiavalo
-      - light.olohuonesohva
-      - light.olohuonesohvan_paaty
-      - light.olohuoneylavalo
+  name: Living Room
+  entities:
+    - group.livingroomceiling
+    - light.olohuonelattiavalo
+    - light.olohuonesohva
+    - light.olohuonesohvan_paaty
+    - light.olohuoneylavalo
 balcony:
-    name: Balcony
-    entities:
-      - light.parveke
+  name: Balcony
+  entities:
+    - light.parveke
+speakers:
+  name: Speakers
+  entities:
+    - switch.bedroom
+    - switch.livingroom
+    - switch.sauna
+    - switch.all
+    - switch.livingroom__bedroom
+    - switch.livingroom__sauna
+    - switch.sauna__bedroom
+scenes:
+  name: Scenes
+  entities:
+    - scene.tv
+    - scene.morning
+    - scene.arrival
+    - script.sleep
+    - script.wakeup

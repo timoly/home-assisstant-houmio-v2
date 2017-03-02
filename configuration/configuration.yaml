@@ -5,80 +5,7 @@ homeassistant:
   elevation: 50
   unit_system: metric
   time_zone: Europe/Helsinki
-  customize:
-    light.keittiokatto:
-      friendly_name: Kitchen ceiling
-      homebridge_name: Ceiling
-    light.keittioruokapoyta:
-      friendly_name: Kitchen table
-      homebridge_name: Table
-    light.keittioylavalo:
-      friendly_name: Kitchen uplight
-      homebridge_name: Uplight
-    light.eteinen:
-      friendly_name: Hallway ceiling
-      homebridge_name: Ceiling
-    light.makuuhuonekatto:
-      friendly_name: Bedroom ceiling
-      homebridge_name: Ceiling
-    light.makuuhuonesangynpaaty:
-      friendly_name: Bedroom headboard
-      homebridge_name: Headboard
-    cover.makuuhuone_rullaverho:
-      hidden: true
-      # friendly_name: Bedroom blinds
-      # homebridge_name: Blinds
-      # homebridge_cover_type: rollershutter
-    switch.makuuhuone_pistoke:
-      friendly_name: Bedroom TV power socket
-      homebridge_name: TV Power socket
-    switch.vahvistin_sauna:
-      friendly_name: Study amplifier
-      homebridge_name: Amplifier
-    light.tyohuonekatto:
-      friendly_name: Study ceiling
-      homebridge_name: Ceiling
-    light.olohuonelattiavalo:
-      friendly_name: Living room floor lamp
-      homebridge_name: Floor lamp
-    light.olohuonesohva:
-      friendly_name: Living room couch
-      homebridge_name: Couch
-    light.olohuonesohvan_paaty:
-      friendly_name: Living room side
-      homebridge_name: Sidetable
-    light.olohuoneylavalo:
-      friendly_name: Living room uplight
-      homebridge_name: Uplight
-    light.parveke:
-      friendly_name: Balcony ceiling
-      homebridge_name: Ceiling
-    cover.makuuhuone_etela:
-      hidden: true
-    cover.makuuhuone_ita:
-      hidden: true
-    switch.sohvanpaaty:
-      hidden: true
-    switch.sohva:
-      hidden: true
-    switch.keittio_ylavalo:
-      hidden: true
-    switch.olohuone_ylavalo:
-      hidden: true
-    switch.parveke:
-      hidden: true
-    light.tyohuonelattiavalo1:
-      homebridge_hidden: true
-      friendly_name: Study floorlamp 1
-    light.tyohuonelattiavalo2:
-      homebridge_hidden: true
-      friendly_name: Study floorlamp 2
-    light.olohuonekatto1:
-      homebridge_hidden: true
-      friendly_name: Living room ceiling 1
-    light.olohuonekatto2:
-      homebridge_hidden: true
-      friendly_name: Living room ceiling 1
+  customize: !include customize.yaml
 
 updater:
 # discovery:
@@ -98,7 +25,9 @@ logger:
 
 group: !include groups.yaml
 scene: !include scenes.yaml
+script: !include scripts.yaml
 automation: !include_dir_list automations
+switch: !include switches.yaml
 
 media_player:
   - platform: yamaha
@@ -128,11 +57,6 @@ sensor:
     username: !secret plexuser
     password: !secret plexpw
 
-switch:
-  - platform: rest
-    name: Olohuone Audio
-    resource: http://localhost:8080/devices/Olohuone
-
 shell_command:
   tv_off: echo "standby 0" | cec-client -s -m
   tv_on: echo "on 0" | cec-client -s -m
@@ -143,17 +67,5 @@ tellduslive:
   token: !secret telldus_token
   token_secret: !secret telldus_token_secret
 
-script:
-  bedroom_blinds_down:
-     alias: Bedroom blinds down
-     sequence:
-       - service: cover.close_cover
-  bedroom_blinds_up:
-     alias: Bedroom blinds up
-     sequence:
-       - service: cover.open_cover
-  bedroom_blinds_stop:
-     alias: Bedroom blinds stop
-     sequence:
-       - service: cover.stop_cover
 ios:
+config:

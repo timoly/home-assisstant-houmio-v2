@@ -1,0 +1,21 @@
+- platform: rest
+  name: Livingroom
+  resource: http://localhost:8080/devices/Olohuone
+- platform: rest
+  name: Bedroom
+  resource: http://localhost:8080/devices/Makuuhuone
+- platform: rest
+  name: Sauna
+  resource: http://localhost:8080/devices/Sauna
+- platform: rest
+  name: All
+  resource: http://localhost:8080/devices/Kaikki
+- platform: rest
+  name: Livingroom & Bedroom
+  resource: http://localhost:8080/devices/Olohuone/Makuuhuone
+- platform: rest
+  name: Livingroom & Sauna
+  resource: http://localhost:8080/devices/Olohuone/Sauna
+- platform: rest
+  name: Sauna & Bedroom
+  resource: http://localhost:8080/devices/Sauna/Makuuhuone

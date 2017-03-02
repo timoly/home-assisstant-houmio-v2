@@ -52,7 +52,3 @@
     light.olohuonelattiavalo:
       state: on
       brightness: 100
-
-- name: sleep
-  entities:
-    group.all_lights: off

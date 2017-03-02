@@ -1,0 +1,95 @@
+light.keittiokatto:
+  friendly_name: Kitchen ceiling
+  homebridge_name: Ceiling
+light.keittioruokapoyta:
+  friendly_name: Kitchen table
+  homebridge_name: Table
+light.keittioylavalo:
+  friendly_name: Kitchen uplight
+  homebridge_name: Uplight
+light.eteinen:
+  friendly_name: Hallway ceiling
+  homebridge_name: Ceiling
+light.makuuhuonekatto:
+  friendly_name: Bedroom ceiling
+  homebridge_name: Ceiling
+light.makuuhuonesangynpaaty:
+  friendly_name: Bedroom headboard
+  homebridge_name: Headboard
+cover.makuuhuone_rullaverho:
+  hidden: true
+  # friendly_name: Bedroom blinds
+  # homebridge_name: Blinds
+  # homebridge_cover_type: rollershutter
+switch.makuuhuone_pistoke:
+  friendly_name: Bedroom TV power socket
+  homebridge_name: TV Power socket
+switch.vahvistin_sauna:
+  friendly_name: Study amplifier
+  homebridge_name: Amplifier
+light.tyohuonekatto:
+  friendly_name: Study ceiling
+  homebridge_name: Ceiling
+light.olohuonelattiavalo:
+  friendly_name: Living room floor lamp
+  homebridge_name: Floor lamp
+light.olohuonesohva:
+  friendly_name: Living room couch
+  homebridge_name: Couch
+light.olohuonesohvan_paaty:
+  friendly_name: Living room side
+  homebridge_name: Sidetable
+light.olohuoneylavalo:
+  friendly_name: Living room uplight
+  homebridge_name: Uplight
+light.parveke:
+  friendly_name: Balcony ceiling
+  homebridge_name: Ceiling
+cover.makuuhuone_etela:
+  hidden: true
+cover.makuuhuone_ita:
+  hidden: true
+switch.sohvanpaaty:
+  hidden: true
+switch.sohva:
+  hidden: true
+switch.keittio_ylavalo:
+  hidden: true
+switch.olohuone_ylavalo:
+  hidden: true
+switch.parveke:
+  hidden: true
+light.tyohuonelattiavalo1:
+  homebridge_hidden: true
+  friendly_name: Study floorlamp 1
+light.tyohuonelattiavalo2:
+  homebridge_hidden: true
+  friendly_name: Study floorlamp 2
+light.olohuonekatto1:
+  homebridge_hidden: true
+  friendly_name: Living room ceiling 1
+light.olohuonekatto2:
+  homebridge_hidden: true
+  friendly_name: Living room ceiling 1
+sensor.test_humidity:
+  hidden: true
+sensor.test_temperature:
+  hidden: true
+sensor.iphone_timo_battery_level:
+  hidden: true
+sensor.iphone_timo_battery_state:
+  hidden: true
+switch.bedroom:
+  icon: mdi:speaker
+switch.livingroom:
+  icon: mdi:speaker
+switch.sauna:
+  icon: mdi:speaker
+switch.livingroom__bedroom:
+  icon: mdi:speaker
+switch.livingroom__sauna:
+  icon: mdi:speaker
+switch.sauna__bedroom:
+  icon: mdi:speaker
+switch.all:
+  icon: mdi:speaker
